@@ -18,7 +18,7 @@ class PackItGUIvsModel(PackItGUI):
         num_actions = board_size**4
         self.model_net = AlphaZeroNet(board_size, in_channels=1, num_actions=num_actions, extra_features_dim=7)
         try:
-            self.model_net.load_state_dict(torch.load("alphazero6x6.pth", map_location=self.device))
+            self.model_net.load_state_dict(torch.load(f"alphazero{board_size}x{board_size}.pth", map_location=self.device))
         except Exception as e:
             print(f"Error loading model: {e}")
         self.model_net.to(self.device)

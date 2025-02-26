@@ -62,12 +62,12 @@ def self_play_game_parallel(args):
         
     return training_data, env.get_binary_obs(), winner
 
-def simulate_model_game_6x6(net, device='cpu'):
+def simulate_model_game(net, board_size, device='cpu'):
     """
-    Simulate a single game in evaluation mode on a 6x6 board.
+    Simulate a single game in evaluation mode on a board_size board.
     Returns the winner (1 or 2).
     """
-    board_size = 6
+    # board_size = 6
     env = PackItEnv(board_size=board_size)
     net.eval()  # disable exploration for deterministic play
     done = False
@@ -92,7 +92,7 @@ def eval_game(args):
     net = AlphaZeroNet(board_size, in_channels=1, num_actions=num_actions, extra_features_dim=7)
     net.load_state_dict(state_dict)
     net.to(device_eval)
-    return simulate_model_game_6x6(net, device_eval)
+    return simulate_model_game(net, board_size, device_eval)
 
 def evaluate_model(net, device, eval_games, board_size=6, parallel_processes=None):
     """
@@ -140,7 +140,7 @@ def rand_eval_game(args):
     winner = 1 if env.current_player == 2 else 2
     return 1 if winner == target_player else 0
 
-def rand_evaluate_model(net, device, eval_games, num_first, board_size=6, parallel_processes=None):
+def rand_evaluate_model(net, device, eval_games, num_first, board_size, parallel_processes=None):
     """
     Run random evaluation games in parallel.
     Half the games: model plays as first mover (its opponent makes random moves),
@@ -162,14 +162,14 @@ def rand_evaluate_model(net, device, eval_games, num_first, board_size=6, parall
     return wins
 
 if __name__ == "__main__":
-    total_games = 2000
-    board_size = 6
+    total_games = 3000
+    board_size = 5
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     num_actions = board_size**4
 
     net = AlphaZeroNet(board_size, in_channels=1, num_actions=num_actions, extra_features_dim=7)
     #!Load weights from previous training
-    net.load_state_dict(torch.load("alphazero6x6.pth"))
+    # net.load_state_dict(torch.load("alphazero5x5.pth"))
     net.to(device)
     
     optimizer = optim.Adam(net.parameters(), lr=0.001)
@@ -277,4 +277,4 @@ if __name__ == "__main__":
 
     with open("training_stats.json", "w") as f:
         json.dump({"loss_stats": loss_stats, "winner_stats": winner_stats}, f)
-    torch.save(net.state_dict(), "alphazero6x6.pth")
+    torch.save(net.state_dict(), "alphazero5x5.pth")
